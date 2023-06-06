@@ -1,0 +1,9 @@
+计算Rosenbrock函数的最优值
+
+![image-20230606102950288](DEADME.assets/image-20230606102950288.png)
+
+使用
+
+![image-20230606103034902](DEADME.assets/image-20230606103034902.png)
+
+![image-20230606103544502](DEADME.assets/image-20230606103544502.png)

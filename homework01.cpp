@@ -3,47 +3,81 @@
 homework01::homework01(){}
 
 double homework01::Rosenbrock(vector<double> x){
-    double res = 100*pow(pow(x[0],2)-x[1],2)+pow(x[0]-1,2);
+    int dimension = x.size();
+    double res = 0;
+    for(int i = 0;i < dimension/2;i++){
+        res += 100*pow(pow(x[2*i-1]*x[2*i-1],2)-x[2*i],2)+pow(x[2*i]-1,2);
+    }
     return res; 
 }
 
 vector<double> homework01::RosenbrockGrandient(vector<double> x){
-    double gradX1 = 400 * x[0] * (pow(x[0],2) - x[1]) + 2 * (x[0] - 1);
-    double gradX2 = -200 * (pow(x[0],2) - x[1]);
-    return {gradX1,gradX2};
+    vector<double> grad(x.size(),0);
+    //保证维度是偶数
+    if(grad.size() % 2 != 0){
+        cout << "x_dimension error" << endl;
+        return vector<double>();
+    }
+    for(int i = 0;i < grad.size();i+=2){
+        grad[i] = 400 * x[i] * (pow(x[i],2) - x[i+1]) + 2 * (x[i] - 1);
+        grad[i+1] = -200 * (pow(x[i],2) - x[i+1]);
+    }
+    return grad;
 }
 
 vector<vector<double>> homework01::RosenbrockHessian(vector<double> x){
-    double H00 = 1200 * pow(x[0],2) - 400 * x[1] + 2;
-    double H01 = -400 * x[0];
-    double H10 = -400 * x[0];
-    double H11 = 200;
-    return {{H00,H01},{H10,H11}};
+    vector<vector<double>> Hessian(x.size(),vector<double>(x.size(),0));
+    for(int i = 0;i < x.size();i+=2){
+        for(int j = 0;j < x.size();j+=2){
+            Hessian[i][j] = 1200 * pow(x[i],2) - 400 * x[i+1] + 2;
+            Hessian[i+1][j] = -400 * x[i];
+            Hessian[i][j+1] = -400 * x[i];
+            Hessian[i+1][j+1] = 200;
+        }
+    }
+    return Hessian;
+}
+
+//求数组的平方和
+double power(vector<double> nums){
+    double res = 0;
+    for(double d:nums){
+        res += d*d;
+    }
+    return res;
 }
 
 double homework01::Armijo(vector<double> x,vector<double> grad){
+    //初始步长为1
     double lemeta = 1;
-    vector<double> Nextx(2,0);
-    
-    Nextx[0] = x[0] - lemeta * grad[0];
-    Nextx[1] = x[1] - lemeta * grad[1];
-    while (Rosenbrock(Nextx) > Rosenbrock(x) - c * lemeta * (pow(grad[0],2)+pow(grad[1],2))){
-        lemeta /= 2;
-        Nextx[0] = x[0] - lemeta * grad[0];
-        Nextx[1] = x[1] - lemeta * grad[1];
+    //迭代的下一次状态量
+    vector<double> Nextx(x.size(),0);
+    for(int i = 0;i < x.size();i++){
+        Nextx[i] = x[i] - lemeta * grad[i];
     }
+    while (Rosenbrock(Nextx) > (Rosenbrock(x) - c * lemeta * (power(grad)))){
+        lemeta /= 2;
+        for(int i = 0;i < x.size();i++){
+            Nextx[i] = x[i] - lemeta * grad[i];
+        }
+    }
+    //输出可行步长
     return lemeta;
 }
 
 vector<double> homework01::LineSearch(vector<double> x){
+    //迭代次数
     int iter = 0;
     vector<double> cur_x = x;
+    //搜索步长
     double lemata;
     while(iter < maxIter && found == false){
         vector<double> grad = homework01::RosenbrockGrandient(cur_x);
-        double error = sqrt(pow(grad[0],2) + pow(grad[1],2));
+        //梯度的误差
+        double error = sqrt(power(grad));
         //输出迭代信息
-        printf("cur_x = [%f,%f],Rosenbrock:%f,iter = %d,grad = [%f,%f],error = %f\n",cur_x[0],cur_x[1],Rosenbrock(cur_x),iter,grad[0],grad[1],error);
+        //printf("cur_x = [%f,%f],Rosenbrock:%f,iter = %d,grad = [%f,%f],error = %f\n",cur_x[0],cur_x[1],Rosenbrock(cur_x),iter,grad[0],grad[1],error);
+        printf("Rosenbrock:%f,iter = %d,error = %f\n",Rosenbrock(cur_x),iter,error);
         if(error < tolerance){
             found = true;
             break;
@@ -51,11 +85,11 @@ vector<double> homework01::LineSearch(vector<double> x){
             lemata = homework01::Armijo(cur_x,grad);
             //输出步长
             cout << lemata << endl;
-            cur_x[0] = cur_x[0] - lemata * grad[0];
-            cur_x[1] = cur_x[1] - lemata * grad[1];
+            for(int i = 0;i < x.size();i++){
+                cur_x[i] = x[i] - lemata * grad[i];
+            }
             iter++;
         }
-        
     }
     
     if(found == true){
