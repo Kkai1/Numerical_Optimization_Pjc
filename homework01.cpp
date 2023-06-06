@@ -66,10 +66,8 @@ vector<double> homework01::LineSearch(vector<double> x){
     return cur_x;
 }
 
-/*
-homework01::homework01(vector<int> x,int tolerate,int maxIter){
+homework01::homework01(vector<double> x,int tolerate,int maxIter){
     this->x0 = x;
     this->tolerance = tolerance;
     this->maxIter = maxIter;
 }
-*/

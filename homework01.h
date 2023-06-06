@@ -11,14 +11,14 @@ using namespace std;
 class homework01
 {
 public:
-    //vector<double> x0{1,1};
+    vector<double> x0{1,1};
     double c = 0.02;
     bool found = false;
     int maxIter = 7000;
     double tolerance = 0.001; //容许误差
 public:
     homework01();
-    //homework01(vector<int> x,int tolerate,int maxIter);
+    homework01(vector<double> x,int tolerate,int maxIter);
 
     //Rosenbrock函数的计算
     double Rosenbrock(vector<double> x);
